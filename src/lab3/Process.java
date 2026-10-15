@@ -16,20 +16,20 @@ public class Process extends Element {
     }
 
     @Override
-    public void start(Order customer) {
-        super.start(customer);
+    public void start(Order order) {
+        super.start(order);
 
         if (getDevicesState() < devicesCount) {
-            super.checkForSensor(customer, EventType.START);
-            super.addActivelyServed(customer);
-            super.setLastServed(customer);
+            super.checkForSensor(order, EventType.START);
+            super.addActivelyServed(order);
+            super.setLastServed(order);
             setDevicesState(getDevicesState() + 1);
             getModel().addEvent(
                     getDistributionRule().apply(this).calculate(),
-                    () -> this.complete(customer)
+                    () -> this.complete(order)
             );
         } else if (queue.getSize() < getMaxqueue()) {
-                queue.add(customer);
+                queue.add(order);
         } else {
             failure++;
         }

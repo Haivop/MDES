@@ -1,5 +1,5 @@
 package lab3;
 
-public interface IDestribution {
+public interface IDistribution {
     double calculate();
 }

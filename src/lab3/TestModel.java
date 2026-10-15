@@ -3,11 +3,11 @@ package lab3;
 import java.util.TreeMap;
 
 public class TestModel extends Model {
-    private final IDestribution arrivalInterval = new Destributions.Exp(2);
-    private final IDestribution test1Time = new Destributions.Exp(0.6);
-    private final IDestribution test2Time = new Destributions.Exp(0.3);
-    private final IDestribution test3Time = new Destributions.Exp(0.4);
-    private final IDestribution test4Time = new Destributions.Exp(0.1);
+    private final IDistribution arrivalInterval = new Distributions.Exp(2);
+    private final IDistribution test1Time = new Distributions.Exp(0.6);
+    private final IDistribution test2Time = new Distributions.Exp(0.3);
+    private final IDistribution test3Time = new Distributions.Exp(0.4);
+    private final IDistribution test4Time = new Distributions.Exp(0.1);
 
     private Create start;
     private Process test1;
@@ -15,7 +15,7 @@ public class TestModel extends Model {
     private Process test3;
     private Process test4;
 
-    private final double SIM_TIME = 100000;
+    private final double SIM_TIME = 1000000;
 
     public static void main(String[] args) {
         TestModel test = new TestModel();

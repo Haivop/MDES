@@ -2,8 +2,8 @@ package lab3;
 
 import java.util.Random;
 
-public class Destributions {
-    public static class Erlang implements IDestribution {
+public class Distributions {
+    public static class Erlang implements IDistribution {
         private final double mean;
         private final int k;
 
@@ -24,7 +24,7 @@ public class Destributions {
         }
     }
 
-    public static class Exp implements IDestribution {
+    public static class Exp implements IDistribution {
         private final double mean;
 
         public Exp(double mean){
@@ -42,7 +42,7 @@ public class Destributions {
         }
     }
 
-    public static class Norm implements IDestribution {
+    public static class Norm implements IDistribution {
         private final double mean, deviation;
 
         public Norm(double mean, double deviation) {
@@ -58,7 +58,7 @@ public class Destributions {
         }
     }
 
-    public static class Unif implements IDestribution {
+    public static class Unif implements IDistribution {
         private final double min;
         private final double max;
 

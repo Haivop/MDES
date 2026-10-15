@@ -9,7 +9,7 @@ public abstract class Element {
     private Model model;
     private double tnext;
     private double tcurr;
-    private Function<Element, IDestribution> distributionRule;
+    private Function<Element, IDistribution> distributionRule;
     private int quantity;
     private int devicesState=0;
     private IRouter router = null;
@@ -19,7 +19,7 @@ public abstract class Element {
 
     public Element(Model model) {
         this.model = model;
-        distributionRule = (type) -> new Destributions.Exp(1);
+        distributionRule = (type) -> new Distributions.Exp(1);
         router = new ProbabilityRouter();
         tnext = Double.MAX_VALUE;
         tcurr = tnext;
@@ -29,7 +29,7 @@ public abstract class Element {
     public String getName() {
         return name;
     }
-    public Function<Element, IDestribution> getDistributionRule() {
+    public Function<Element, IDistribution> getDistributionRule() {
         return distributionRule;
     }
     public int getQuantity() {
@@ -89,7 +89,7 @@ public abstract class Element {
     public void updateStatistics(double delta){
     }
 
-    public void setDistributionRule(Function<Element, IDestribution> distributionRule) {
+    public void setDistributionRule(Function<Element, IDistribution> distributionRule) {
         this.distributionRule = distributionRule;
     }
 

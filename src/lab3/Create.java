@@ -12,6 +12,7 @@ public class Create extends Element {
 
     public void complete() {
         Order o = arrive.get();
+        super.checkForSensor(o, EventType.COMPLETE);
         super.complete(o);
         super.getModel().addEvent(
                 super.getDistributionRule().apply(this).calculate(),

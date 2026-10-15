@@ -3,9 +3,9 @@ package lab3;
 import java.util.*;
 
 public class BankModel extends Model {
-    private final IDestribution arrivalInterval = new Destributions.Exp(0.5);
-    private final IDestribution cashiersWorkTime = new Destributions.Exp(0.3);
-    private final IDestribution startingCashiersWorkTime = new Destributions.Norm(1, 0.3);
+    private final IDistribution arrivalInterval = new Distributions.Exp(0.5);
+    private final IDistribution cashiersWorkTime = new Distributions.Exp(0.3);
+    private final IDistribution startingCashiersWorkTime = new Distributions.Norm(1, 0.3);
     private Create start;
     private final Process[] cashiersArr = new Process[2];
 

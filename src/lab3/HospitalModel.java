@@ -6,11 +6,11 @@ import java.util.TreeMap;
 
 public class HospitalModel extends Model {
     private final double[] arrivalProbabilities = new double[]{0.5, 0.1, 0.4};
-    private final IDestribution arrivalInterval = new Destributions.Exp(15);
-    private final IDestribution escortTime = new Destributions.Unif(3, 8);
-    private final IDestribution timeErToLab = new Destributions.Unif(2, 5);
-    private final IDestribution labRegistrationTime = new Destributions.Erlang(4.5, 3);
-    private final IDestribution labAnalysisTime = new Destributions.Erlang(4, 2);
+    private final IDistribution arrivalInterval = new Distributions.Exp(15);
+    private final IDistribution escortTime = new Distributions.Unif(3, 8);
+    private final IDistribution timeErToLab = new Distributions.Unif(2, 5);
+    private final IDistribution labRegistrationTime = new Distributions.Erlang(4.5, 3);
+    private final IDistribution labAnalysisTime = new Distributions.Erlang(4, 2);
 
     Create start;
     Process er;
@@ -91,7 +91,8 @@ public class HospitalModel extends Model {
         labRegistration.setName("ЛАБ. РЕЄСТРАЦІЯ");
         labRegistration.setDistributionRule((el) -> labRegistrationTime);
         labRegistration.setQueue(new ServiceQueue<>(Integer.MAX_VALUE));
-        escort.setRouter(new ProbabilityRouter())
+        labRegistration.addSensor(labArrival);
+        labRegistration.setRouter(new ProbabilityRouter())
             .addRoutes(
                 new Route(lab, labRegistration, (double) 1.0)
             );
@@ -104,7 +105,6 @@ public class HospitalModel extends Model {
                 new Route(pathToLab, lab, UNEXAMINED_PATIENT_TO_HOSPITAL)
             );
         lab.addSensor(labDeparture);
-        lab.addSensor(labArrival);
         lab.setQueue(new ServiceQueue<>(Integer.MAX_VALUE));
 
         return start;
@@ -143,14 +143,18 @@ public class HospitalModel extends Model {
     }
 
     private void updateStatistics(Double delta){
-
+        er.updateStatistics(delta);
+        escort.updateStatistics(delta);
+        pathToLab.updateStatistics(delta);
+        labRegistration.updateStatistics(delta);
+        lab.updateStatistics(delta);
     }
 
-    private IDestribution erDistributionRule(Element el){
+    private IDistribution erDistributionRule(Element el){
         return switch (el.getLastServed().getType()) {
-            case EXAMINED_PATIENT_TO_HOSPITAL -> new Destributions.Exp(15);
-            case UNEXAMINED_PATIENT_TO_HOSPITAL -> new Destributions.Exp(40);
-            case PATIENT_TO_EXAMINATION -> new Destributions.Exp(30);
+            case EXAMINED_PATIENT_TO_HOSPITAL -> new Distributions.Exp(15);
+            case UNEXAMINED_PATIENT_TO_HOSPITAL -> new Distributions.Exp(40);
+            case PATIENT_TO_EXAMINATION -> new Distributions.Exp(30);
             default -> null;
         };
     }
@@ -163,6 +167,7 @@ public class HospitalModel extends Model {
         for (Route route : routes) {
             if(order.getType() < route.priority()) continue;
             result = route;
+            break;
         }
 
         return result;
@@ -196,9 +201,9 @@ public class HospitalModel extends Model {
 
     private void senseLabDeparture(Double activationTime, Order patient){
         if(patient.getType() == EXAMINED_PATIENT_TO_HOSPITAL) return;
-        departedClients++;
-        totalStayTime += activationTime - patient.getArrivalTime();
+        senseWardDeparture(activationTime, patient);
     }
+
     private void senseLabArrival(Double activationTime, Order patient){
         intervalsCount++;
         double endArrivalInterval = activationTime;
