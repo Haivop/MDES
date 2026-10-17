@@ -20,7 +20,6 @@ public class Create extends Element {
                 this::complete
         );
 
-        getModel().setOrdersInSystem(getModel().getOrdersInSystem() + 1);
         super.checkForSensor(o, EventType.COMPLETE);
         super.complete(o);
         Route next = super.getRouter().route();

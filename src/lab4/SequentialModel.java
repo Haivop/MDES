@@ -15,7 +15,7 @@ public class SequentialModel extends Model {
     private final List<Process> services = new ArrayList<>();
     private final IDistribution distribution = new Distributions.Exp(10);
     private Process ending = null;
-    private static double timeToSimulate = Double.MAX_VALUE;
+    private static double timeToSimulate = 0;
     private static final double SIM_TIME = 10000;
     private static double orderInSystemTime = 0;
 
@@ -24,15 +24,17 @@ public class SequentialModel extends Model {
     }
 
     public static void main(String[] args) {
-        for(int i=0; i < SERVICES_NUM.length; i++){
-            SequentialModel analytic = new SequentialModel(SERVICES_NUM[i]);
-            analytic.build();
-            analytic.runSimulation(SIM_TIME);
+        for (int k : SERVICES_NUM) {
+            SequentialModel analytic = new SequentialModel(k);
 
-            for(int j=0; j < REPETITIONS_NUM; j++){
+            for (int j = 0; j < REPETITIONS_NUM; j++) {
+                analytic.reset();
+                analytic.build();
+                analytic.runSimulation();
+
                 long start = System.currentTimeMillis();
-                analytic.runSimulation(SIM_TIME);
-                timeToSimulate = Math.min(System.currentTimeMillis() - start, timeToSimulate);
+                analytic.runSimulation();
+                timeToSimulate += System.currentTimeMillis() - start;
             }
 
             analytic.getResultStatistics();
@@ -63,8 +65,11 @@ public class SequentialModel extends Model {
         ending.addSensor(disposalSensor);
     }
 
-    private void runSimulation(double time){
-
+    private void runSimulation(){
+        for(int i=0; i < servicesNumber; i++){
+            addEvent(0.0, () -> start.complete());
+        }
+        this.simulate(SIM_TIME, this::updateStatistics);
     }
 
     private void getResultStatistics(){
@@ -72,21 +77,34 @@ public class SequentialModel extends Model {
 
 
         Map<String, Double> statistics = super.getStatisticResults();
-        statistics.put("Number of Reps: ", (double) REPETITIONS_NUM);
-        statistics.put("Number of Services: ", (double) servicesNumber);
-        statistics.put("Simulation Time: ", (double) SIM_TIME);
-        statistics.put("Time to Simulate: ", (double) timeToSimulate);
-        statistics.put("Created Orders: ", (double) start.getQuantity());
-        statistics.put("Completed Orders: ", (double) ending.getQuantity());
-        statistics.put("Avg time for order to complete system: ", avgOrderInSystemTime);
+        statistics.put("Avg Time to Simulate ", (double) timeToSimulate / REPETITIONS_NUM);
+        statistics.put("Created Orders ", (double) start.getQuantity());
+        statistics.put("Avg Completed Orders ", (double) ending.getQuantity() / REPETITIONS_NUM);
+        statistics.put("Avg Added Events ", (double) super.getEventsAdded() / REPETITIONS_NUM);
+        statistics.put("Avg Handled Events ", (double) super.getEventsCompleted() / REPETITIONS_NUM);
+        statistics.put("Avg order completion time ", avgOrderInSystemTime);
+    }
+
+    @Override
+    public void showResults(){
+        System.out.printf("\n ------------------RESULTS(T=%.0f; N=%d; R=%d)----------------%n",
+                SIM_TIME, servicesNumber, REPETITIONS_NUM);
+        for(Map.Entry<String, Double> entry : getStatisticResults().entrySet()){
+            System.out.printf("%s :\t\t\t %.5f \n", entry.getKey(), entry.getValue());
+        }
     }
 
     private Order arrival(){
         if(this.getOrdersInSystem() >= servicesNumber + 1) return null;
+        setOrdersInSystem(getOrdersInSystem() +1);
         return new Order(getTime());
     }
 
+    private void updateStatistics(Double delta){
+    }
+
     private void senseDisposal(double activationTime, Order o){
+        setOrdersInSystem(getOrdersInSystem() -1);
         orderInSystemTime += activationTime - o.getArrivalTime();
     }
 }

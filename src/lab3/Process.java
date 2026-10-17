@@ -55,10 +55,7 @@ public class Process extends Element {
         if(getRouter().getRoutes().isEmpty()) return;
         Route next = getRouter().route();
 
-        if(next == null) {
-            getModel().setOrdersInSystem(getModel().getOrdersInSystem() - 1);
-            return;
-        }
+        if(next == null) return;
         getModel().addEvent(
                 (double) 0,
                 () -> next.dest().start(order)

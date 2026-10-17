@@ -33,6 +33,11 @@ public class Model {
         return tcurr;
     }
 
+    public void reset() {
+        tcurr = 0;
+        setOrdersInSystem(0);
+    }
+
     public TreeMap<String, Double> getStatisticResults() {
         return statisticResults;
     }
@@ -50,5 +55,21 @@ public class Model {
 
     public void setOrdersInSystem(int ordersInSystem) {
         this.ordersInSystem = ordersInSystem;
+    }
+
+    public int getEventsAdded() {
+        return eventsAdded;
+    }
+
+    public void setEventsAdded(int eventsAdded) {
+        this.eventsAdded = eventsAdded;
+    }
+
+    public int getEventsCompleted() {
+        return eventsCompleted;
+    }
+
+    public void setEventsCompleted(int eventsCompleted) {
+        this.eventsCompleted = eventsCompleted;
     }
 }
