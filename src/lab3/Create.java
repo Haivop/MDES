@@ -12,13 +12,17 @@ public class Create extends Element {
 
     public void complete() {
         Order o = arrive.get();
-        super.checkForSensor(o, EventType.COMPLETE);
-        super.complete(o);
+
+        if(o == null) return;
+
         super.getModel().addEvent(
                 super.getDistributionRule().apply(this).calculate(),
                 this::complete
         );
 
+        getModel().setOrdersInSystem(getModel().getOrdersInSystem() + 1);
+        super.checkForSensor(o, EventType.COMPLETE);
+        super.complete(o);
         Route next = super.getRouter().route();
         if(next == null) return;
         super.getModel().addEvent(
