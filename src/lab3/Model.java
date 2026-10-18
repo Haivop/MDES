@@ -7,6 +7,7 @@ import java.util.function.Consumer;
 
 public class Model {
     double tcurr = 0;
+    double generalTime = 0;
     public final PriorityQueue<Event> events = new PriorityQueue<>();
     private final TreeMap<String, Double> statisticResults = new TreeMap<>();
     private int ordersInSystem = 0;
@@ -26,12 +27,15 @@ public class Model {
             tcurr = next.time();
             next.action().run();
         }
+        generalTime += tcurr;
         updateStatistics.accept(time - tcurr);
     }
 
     public double getTime() {
         return tcurr;
     }
+
+    public double getGeneralTime(){return generalTime;}
 
     public void reset() {
         tcurr = 0;

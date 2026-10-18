@@ -8,7 +8,7 @@ import java.util.List;
 import java.util.Map;
 
 public class SequentialModel extends Model {
-    private final static int[] SERVICES_NUM = new int[]{1000, 10000, 100000};
+    private final static int[] SERVICES_NUM = new int[]{500, 1000, 2000, 4000, 8000};
     private final static int REPETITIONS_NUM = 5;
     private final int servicesNumber;
     private Create start = null;
@@ -27,10 +27,11 @@ public class SequentialModel extends Model {
         for (int k : SERVICES_NUM) {
             SequentialModel analytic = new SequentialModel(k);
 
+            analytic.build();
+            analytic.runSimulation();
+
             for (int j = 0; j < REPETITIONS_NUM; j++) {
                 analytic.reset();
-                analytic.build();
-                analytic.runSimulation();
 
                 long start = System.currentTimeMillis();
                 analytic.runSimulation();
@@ -59,7 +60,7 @@ public class SequentialModel extends Model {
             p.setQueue(new ServiceQueue<>(Integer.MAX_VALUE));
             p.setDistributionRule((el) -> distribution);
             if(i+1 != servicesNumber) p.getRouter().addRoutes(new Route(services.get(i+1), p, (double) 1.0));
-            if(i+1 != servicesNumber) ending = p;
+            else ending = p;
         }
 
         ending.addSensor(disposalSensor);
@@ -73,7 +74,7 @@ public class SequentialModel extends Model {
     }
 
     private void getResultStatistics(){
-        double avgOrderInSystemTime = orderInSystemTime / (this.getTime() * REPETITIONS_NUM);
+        double avgOrderInSystemTime = orderInSystemTime / (this.getGeneralTime());
         double failures = 0;
 
         for (Process p : services) {
@@ -83,10 +84,11 @@ public class SequentialModel extends Model {
 
         Map<String, Double> statistics = super.getStatisticResults();
         statistics.put("Avg Time to Simulate (ms) ", (double) timeToSimulate / REPETITIONS_NUM);
-        statistics.put("Created Orders ", (double) start.getQuantity());
-        statistics.put("Avg Completed Orders ", (double) ending.getQuantity() / REPETITIONS_NUM);
+        statistics.put("Avg Time of Simulation (time points) ", (double) this.getGeneralTime() / REPETITIONS_NUM);
+        statistics.put("Created Orders ", (double) start.getQuantity() / REPETITIONS_NUM + 1);
+        statistics.put("Avg Completed Orders ", (double) ending.getQuantity() / REPETITIONS_NUM + 1);
         statistics.put("Avg order completion time (time points) ", avgOrderInSystemTime);
-        statistics.put("Avg failures ", failures / REPETITIONS_NUM);
+        statistics.put("Avg failures ", failures / REPETITIONS_NUM + 1);
     }
 
     @Override
