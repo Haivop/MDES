@@ -8,7 +8,7 @@ import java.util.List;
 import java.util.Map;
 
 public class SequentialModel extends Model {
-    private final static int[] SERVICES_NUM = new int[]{10, 20, 50, 100, 250, 500, 1000};
+    private final static int[] SERVICES_NUM = new int[]{1000, 10000, 100000};
     private final static int REPETITIONS_NUM = 5;
     private final int servicesNumber;
     private Create start = null;
@@ -16,7 +16,7 @@ public class SequentialModel extends Model {
     private final IDistribution distribution = new Distributions.Exp(10);
     private Process ending = null;
     private static double timeToSimulate = 0;
-    private static final double SIM_TIME = 10000;
+    private static final double SIM_TIME = Double.MAX_VALUE;
     private static double orderInSystemTime = 0;
 
     private SequentialModel(int N){
@@ -73,22 +73,26 @@ public class SequentialModel extends Model {
     }
 
     private void getResultStatistics(){
-        double avgOrderInSystemTime = orderInSystemTime / (SIM_TIME * REPETITIONS_NUM);
+        double avgOrderInSystemTime = orderInSystemTime / (this.getTime() * REPETITIONS_NUM);
+        double failures = 0;
+
+        for (Process p : services) {
+            failures += p.getFailure();
+        }
 
 
         Map<String, Double> statistics = super.getStatisticResults();
-        statistics.put("Avg Time to Simulate ", (double) timeToSimulate / REPETITIONS_NUM);
+        statistics.put("Avg Time to Simulate (ms) ", (double) timeToSimulate / REPETITIONS_NUM);
         statistics.put("Created Orders ", (double) start.getQuantity());
         statistics.put("Avg Completed Orders ", (double) ending.getQuantity() / REPETITIONS_NUM);
-        statistics.put("Avg Added Events ", (double) super.getEventsAdded() / REPETITIONS_NUM);
-        statistics.put("Avg Handled Events ", (double) super.getEventsCompleted() / REPETITIONS_NUM);
-        statistics.put("Avg order completion time ", avgOrderInSystemTime);
+        statistics.put("Avg order completion time (time points) ", avgOrderInSystemTime);
+        statistics.put("Avg failures ", failures / REPETITIONS_NUM);
     }
 
     @Override
     public void showResults(){
-        System.out.printf("\n ------------------RESULTS(T=%.0f; N=%d; R=%d)----------------%n",
-                SIM_TIME, servicesNumber, REPETITIONS_NUM);
+        System.out.printf("\n ------------------RESULTS(N=%d; R=%d)----------------%n",
+                servicesNumber, REPETITIONS_NUM);
         for(Map.Entry<String, Double> entry : getStatisticResults().entrySet()){
             System.out.printf("%s :\t\t\t %.5f \n", entry.getKey(), entry.getValue());
         }
@@ -104,7 +108,6 @@ public class SequentialModel extends Model {
     }
 
     private void senseDisposal(double activationTime, Order o){
-        setOrdersInSystem(getOrdersInSystem() -1);
         orderInSystemTime += activationTime - o.getArrivalTime();
     }
 }
