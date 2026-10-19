@@ -12,6 +12,7 @@ public class ExperimentSeq {
     public static void main(String[] args) {
         ExperimentSeq experiment = new ExperimentSeq();
         for (int k : SERVICES_NUM) {
+            experiment.statistics.clear();
             SequentialModel expModel = new SequentialModel(k, SIM_TIME);
             expModel.runSimulation();
 
@@ -28,11 +29,15 @@ public class ExperimentSeq {
                 );
             }
 
+            experiment.statistics.replaceAll(
+                    (key, value) -> value / REPETITIONS_NUM
+            );
+
             System.out.printf("\n ------------------RESULTS(T=%.0f; N=%d; R=%d)----------------%n",
                     SIM_TIME, k, REPETITIONS_NUM);
             experiment.statistics.forEach(
                     (key, value) -> System.out.println(
-                            key + ": " + (double) value / REPETITIONS_NUM
+                            key + ": " + value
                     )
             );
         }

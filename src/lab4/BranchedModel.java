@@ -15,7 +15,8 @@ public class BranchedModel extends Model {
     private Create start = null;
     private final List<Process> services = new ArrayList<>();
     private final List<Process> endings = new ArrayList<>();
-    private final IDistribution distribution = new Distributions.Exp(1);
+    private final IDistribution startDistribution = new Distributions.Exp(2);
+    private final IDistribution distribution = new Distributions.Exp(3);
 
     public double timeToSimulate = 0;
 
@@ -29,7 +30,7 @@ public class BranchedModel extends Model {
 
     private void build(){
         start = new Create(this, this::arrival);
-        start.setDistributionRule((el) -> distribution);
+        start.setDistributionRule((el) -> startDistribution);
         IRouter startRouter = start.setRouter(new ProbabilityRouter());
         services.add(new Process(this));
         startRouter.addRoute(new Route(services.getFirst(), start, 1.0));
@@ -111,6 +112,9 @@ public class BranchedModel extends Model {
     }
 
     private void updateStatistics(Double delta){
+        for (Process p : services) {
+            p.updateStatistics(delta);
+        }
     }
 
     private void senseCompletion(double activationTime, Order o){
@@ -126,9 +130,9 @@ public class BranchedModel extends Model {
             return servicesNumber;
         }
 
-        return (int) Math.floor(
-                Math.log((branchingNumber - 1.0) * (servicesNumber - 1) + 1)
+        return (int) Math.ceil(
+                Math.log((branchingNumber - 1.0) * servicesNumber + 1)
                         / Math.log(branchingNumber)
-        ) + 1;
+        );
     }
 }

@@ -11,6 +11,7 @@ public class ExperimentBranched {
 
     public static void main(String[] args) {
         ExperimentBranched experiment = new ExperimentBranched();
+        experiment.statistics.clear();
         for (int k : SERVICES_NUM) {
             BranchedModel expModel = new BranchedModel(k, SIM_TIME, 2);
             expModel.runSimulation();
@@ -28,11 +29,15 @@ public class ExperimentBranched {
                 );
             }
 
+            experiment.statistics.replaceAll(
+                    (key, value) -> value / REPETITIONS_NUM
+            );
+
             System.out.printf("\n ------------------RESULTS(T=%.0f; N=%d; R=%d)----------------%n",
                     SIM_TIME, k, REPETITIONS_NUM);
             experiment.statistics.forEach(
                     (key, value) -> System.out.println(
-                            key + ": " + (double) value / REPETITIONS_NUM
+                            key + ": " + value
                     )
             );
         }

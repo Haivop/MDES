@@ -13,7 +13,8 @@ public class SequentialModel extends Model {
     private Create start = null;
     private Process ending = null;
     private final List<Process> services = new ArrayList<>();
-    private final IDistribution distribution = new Distributions.Exp(3);
+    private final IDistribution startDistribution = new Distributions.Exp(3);
+    private final IDistribution distribution = new Distributions.Exp(2);
     public double timeToSimulate = 0;
 
 
@@ -26,7 +27,7 @@ public class SequentialModel extends Model {
 
     public void build(){
         start = new Create(this, this::arrival);
-        start.setDistributionRule((el) -> distribution);
+        start.setDistributionRule((el) -> startDistribution);
         services.add(new Process(this));
         start.setRouter(new ProbabilityRouter())
                 .addRoutes(new Route(services.getFirst(), start, (double) 1.0));
@@ -62,7 +63,6 @@ public class SequentialModel extends Model {
         double avgOrderPathLen = (double) avgEventsCompleted / avgCreatedOrders;
         double avgEventIntensity = (double) getEventsAdded() / getTime();
 
-
         Map<String, Double> statistics = super.getStatisticResults();
         statistics.put("Avg Time to Simulate (ms) ", avgTimeToSimulate);
         statistics.put("Avg Events completed", avgEventsCompleted);
@@ -87,10 +87,13 @@ public class SequentialModel extends Model {
     }
 
     private void updateStatistics(Double delta){
+        for(Process p : services){
+            p.updateStatistics(delta);
+        }
     }
 
     private void senseCompletion(double activationTime, Order o){
-        super.setEventsCompleted(super.getEventsCompleted() +1);
+        super.setEventsCompleted(super.getEventsCompleted() + 1);
     }
 
     @Override
