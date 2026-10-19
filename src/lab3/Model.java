@@ -22,7 +22,6 @@ public class Model {
     public void simulate(double time, Consumer<Double> updateStatistics) {
         while (!events.isEmpty() && events.peek().time() < time) {
             Event next = events.poll();
-            eventsCompleted++;
             updateStatistics.accept(next.time() - tcurr);
             tcurr = next.time();
             next.action().run();
@@ -35,12 +34,16 @@ public class Model {
         return tcurr;
     }
 
-    public double getGeneralTime(){return generalTime;}
-
-    public void reset() {
-        tcurr = 0;
-        setOrdersInSystem(0);
+    public void setTime(double time) {
+        this.tcurr = time;
     }
+
+    public void perRepReset() {
+        this.setTime(0);
+        setEventsCompleted(0);
+    }
+
+    public double getGeneralTime(){return generalTime;}
 
     public TreeMap<String, Double> getStatisticResults() {
         return statisticResults;

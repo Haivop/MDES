@@ -24,9 +24,6 @@ public class Create extends Element {
         super.complete(o);
         Route next = super.getRouter().route();
         if(next == null) return;
-        super.getModel().addEvent(
-                0,
-                () -> next.dest().start(o)
-        );
+        next.dest().start(o);
     }
 }

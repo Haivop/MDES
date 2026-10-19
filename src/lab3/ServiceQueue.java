@@ -92,6 +92,10 @@ public class ServiceQueue<T> {
         return initialLength;
     }
 
+    public void clear(){
+        queue.clear();
+    }
+
     public String getStructure() {
         return structure;
     }

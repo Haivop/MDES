@@ -3,6 +3,7 @@ package lab3;
 public class Order {
     private int type;
     private final double arrivalTime;
+    private int depth;
 
     public Order(double arrivalTime) {
         this.arrivalTime = arrivalTime;
@@ -23,5 +24,13 @@ public class Order {
 
     public double getArrivalTime() {
         return arrivalTime;
+    }
+
+    public int getDepth() {
+        return depth;
+    }
+
+    public void incrementDepth(int plus) {
+        this.depth += plus;
     }
 }

@@ -45,10 +45,7 @@ public class Process extends Element {
 
         if (!queue.isEmpty()) {
             Order o = queue.remove();
-            getModel().addEvent(
-                    (double) 0,
-                    () -> this.start(o)
-            );
+            this.start(o);
         }
 
         if(getRouter() == null) return;
@@ -56,10 +53,7 @@ public class Process extends Element {
         Route next = getRouter().route();
 
         if(next == null) return;
-        getModel().addEvent(
-                (double) 0,
-                () -> next.dest().start(order)
-        );
+        next.dest().start(order);
     }
 
     public int getFailure() {
